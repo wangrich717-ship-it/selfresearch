@@ -133,6 +133,50 @@ select.fi{cursor:pointer;-webkit-appearance:none;appearance:none;background-imag
 select.inf{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='9' height='5' viewBox='0 0 9 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3.5 3L8 1' stroke='%23a09c94' stroke-width='1'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .1rem center}
 textarea.inf{resize:none;min-height:80px;line-height:1.75;margin-top:.25rem}
 
+/* ─── ALT EXPORT ROW ─── */
+.alt-row{display:flex;align-items:center;gap:.75rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--bdr-lt)}
+.alt-or{font-family:var(--fm);font-size:.58rem;letter-spacing:.12em;color:var(--muted);white-space:nowrap}
+.alt-btn{background:none;border:none;padding:0;font-family:var(--fm);font-size:.6rem;letter-spacing:.1em;color:var(--txt2);cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--bdr);transition:color .2s}
+.alt-btn:hover{color:var(--accent)}
+
+/* ─── EXPORT MODAL ─── */
+.exp-mask{position:fixed;inset:0;background:rgba(26,25,22,.55);backdrop-filter:blur(4px);z-index:300;display:none}
+.exp-mask.on{display:block}
+.exp-panel{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--bg-card);border-top:1px solid var(--bdr);
+  z-index:301;display:flex;flex-direction:column;
+  max-height:85vh;transform:translateY(100%);
+  transition:transform .38s cubic-bezier(.16,1,.3,1)
+}
+.exp-panel.on{transform:translateY(0)}
+.exp-head{display:flex;justify-content:space-between;align-items:flex-start;padding:1.75rem 2rem 1.25rem;border-bottom:1px solid var(--bdr)}
+.exp-title{font-family:var(--fd);font-size:1.2rem;font-weight:400;color:var(--txt);margin-bottom:.3rem}
+.exp-sub{font-family:var(--fb);font-size:.88rem;font-style:italic;color:var(--txt2)}
+.exp-ai-row{display:flex;gap:.6rem;padding:1rem 2rem;border-bottom:1px solid var(--bdr);flex-wrap:wrap}
+.ai-chip{
+  padding:.4rem 1rem;border:1px solid var(--bdr);
+  font-family:var(--fm);font-size:.6rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--txt2);
+  text-decoration:none;transition:all .2s
+}
+.ai-chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(43,74,56,.04)}
+.exp-ta{
+  flex:1;resize:none;border:none;outline:none;
+  padding:1.5rem 2rem;font-family:var(--fm);font-size:.72rem;
+  line-height:1.75;color:var(--txt);background:var(--bg);
+  overflow-y:auto;min-height:0
+}
+.exp-copy-btn{
+  margin:1rem 2rem 1.5rem;padding:1rem;
+  background:var(--accent);color:var(--bg-card);
+  border:none;font-family:var(--fm);font-size:.7rem;
+  letter-spacing:.2em;text-transform:uppercase;
+  cursor:pointer;transition:background .2s;flex-shrink:0
+}
+.exp-copy-btn:hover{background:var(--accent2)}
+.exp-copy-btn.copied{background:var(--txt)}
+
 /* ─── ANALYZING ─── */
 #analyzing{justify-content:center;align-items:center;gap:2.25rem;text-align:center}
 .spin{width:60px;height:60px;border:1px solid var(--bdr);border-top-color:var(--accent);border-radius:50%;animation:spin 1.8s linear infinite}
@@ -351,8 +395,37 @@ textarea.inf{resize:none;min-height:80px;line-height:1.75;margin-top:.25rem}
         <button class="bn" onclick="backToResearch()">← 返回修改</button>
         <button class="bn pri" onclick="submit()">开始分析 →</button>
       </div>
+      <div class="alt-row">
+        <span class="alt-or">没有 API Key？</span>
+        <button class="alt-btn" onclick="generateExport()">生成完整问卷文本，去其他 AI 分析 →</button>
+      </div>
     </div>
   </div>
+</div>
+
+<!-- ═══ EXPORT MODAL ═══ -->
+<div class="exp-mask" id="exp-mask" onclick="closeExport()"></div>
+<div class="exp-panel" id="exp-panel">
+  <div class="exp-head">
+    <div>
+      <p class="exp-title">复制全部内容，粘贴到任意 AI</p>
+      <p class="exp-sub">已包含问卷回答 + 分析提示词，粘贴后直接发送即可</p>
+    </div>
+    <button class="btn-x" onclick="closeExport()">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.3">
+        <path d="M1 1l11 11M12 1L1 12"/>
+      </svg>
+    </button>
+  </div>
+  <div class="exp-ai-row">
+    <a class="ai-chip" href="https://chat.deepseek.com" target="_blank">DeepSeek</a>
+    <a class="ai-chip" href="https://www.doubao.com/chat" target="_blank">豆包</a>
+    <a class="ai-chip" href="https://kimi.moonshot.cn" target="_blank">Kimi</a>
+    <a class="ai-chip" href="https://chatgpt.com" target="_blank">ChatGPT</a>
+    <a class="ai-chip" href="https://tongyi.aliyun.com" target="_blank">通义</a>
+  </div>
+  <textarea class="exp-ta" id="exp-ta" readonly></textarea>
+  <button class="exp-copy-btn" id="exp-copy-btn" onclick="copyExport()">复制全部内容</button>
 </div>
 
 <!-- ═══ ANALYZING ═══ -->
@@ -752,6 +825,63 @@ function populateTOC(){
 }
 // smooth scroll helper (avoid shadowing built-in 's')
 window.s = id => document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+
+function generateExport(){
+  const name   = document.getElementById('inf-name')?.value.trim();
+  const gender = document.getElementById('inf-gender')?.value;
+  const age    = document.getElementById('inf-age')?.value.trim();
+  const extra  = document.getElementById('inf-extra')?.value.trim();
+
+  let t = '';
+
+  // Prompt header
+  t += cfg.prompt + '\n\n';
+  t += '─'.repeat(40) + '\n\n';
+
+  // Personal info
+  if(name||gender||age||extra){
+    t += '【个人基本信息】\n';
+    if(name)   t += `姓名：${name}\n`;
+    if(gender) t += `性别：${gender}\n`;
+    if(age)    t += `年龄：${age}\n`;
+    if(extra)  t += `补充说明：${extra}\n`;
+    t += '\n';
+  }
+
+  // Q&A
+  t += '【我的回答】\n\n';
+  let n=1;
+  MODS.forEach(m=>{
+    t += `— ${m.title} —\n\n`;
+    m.qs.forEach(q=>{
+      t += `Q${n}. ${q.t}\n`;
+      t += `答：${ans[q.id]||'（未填写）'}\n\n`;
+      n++;
+    });
+  });
+
+  document.getElementById('exp-ta').value = t.trim();
+  document.getElementById('exp-mask').classList.add('on');
+  document.getElementById('exp-panel').classList.add('on');
+}
+
+function closeExport(){
+  document.getElementById('exp-mask').classList.remove('on');
+  document.getElementById('exp-panel').classList.remove('on');
+}
+
+function copyExport(){
+  const ta  = document.getElementById('exp-ta');
+  const btn = document.getElementById('exp-copy-btn');
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    btn.textContent='已复制！';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='复制全部内容'; btn.classList.remove('copied'); }, 2500);
+  }).catch(()=>{
+    ta.select(); document.execCommand('copy');
+    toast('已复制到剪贴板');
+  });
+}
 
 function restart(){ curQ=0; ans={}; showPage('landing'); }
 function pad2(n){ return String(n).padStart(2,'0'); }
