@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自我研究实验室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f2f0eb;--bg-card:#faf9f6;--txt:#1a1916;--txt2:#6b6660;
+  --muted:#a09c94;--accent:#2b4a38;--accent2:#3d6350;
+  --bdr:#d4d0c8;--bdr-lt:#e8e5de;
+  --fd:'Cormorant Garamond','STZhongsong','华文中宋',Georgia,serif;
+  --fb:'Crimson Pro','STSong','宋体','SimSun',serif;
+  --fm:'IBM Plex Mono','Courier New',monospace;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--txt);font-family:var(--fb);line-height:1.7;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bdr)}
+
+/* PAGE SYSTEM */
+.page{min-height:100vh;display:none;flex-direction:column;opacity:0;transition:opacity .42s ease}
+.page.active{display:flex}
+.page.visible{opacity:1}
+
+/* ─── LANDING ─── */
+#landing{position:relative;overflow:hidden;height:100vh}
+#landing::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(158,152,140,.32) 1px,transparent 1px);background-size:30px 30px;pointer-events:none;z-index:0}
+
+.lnav{display:flex;justify-content:space-between;align-items:center;padding:1.4rem 3.5rem;border-bottom:1px solid var(--bdr);position:relative;z-index:1}
+.lnav-id{font-family:var(--fm);font-size:.62rem;font-weight:300;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
+.btn-cfg{width:34px;height:34px;background:none;border:1px solid var(--bdr);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--txt2);transition:all .22s}
+.btn-cfg:hover{border-color:var(--accent);color:var(--accent);background:rgba(43,74,56,.05)}
+
+.hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.5rem 3rem;position:relative;z-index:1;overflow:hidden}
+.hero-kicker{font-family:var(--fm);font-size:.6rem;letter-spacing:.38em;color:var(--muted);text-transform:uppercase;margin-bottom:1.25rem}
+.hero-bar{width:1px;height:32px;background:var(--bdr);margin:0 auto 1.25rem}
+.hero-h1{font-family:var(--fd);font-size:clamp(3.2rem,7.5vw,6.8rem);font-weight:300;line-height:1.05;color:var(--txt);margin-bottom:.4rem}
+.hero-en{font-family:var(--fm);font-size:.6rem;letter-spacing:.32em;color:var(--muted);text-transform:uppercase;margin-bottom:1.75rem}
+.hero-sep{display:flex;align-items:center;gap:1.25rem;margin-bottom:1.75rem;width:100%;max-width:380px}
+.hero-sep-line{flex:1;height:1px;background:var(--bdr)}
+.hero-sep-dot{width:4px;height:4px;border-radius:50%;background:var(--accent)}
+.hero-desc{font-family:var(--fb);font-size:1rem;font-weight:300;font-style:italic;color:var(--txt2);max-width:460px;line-height:1.85;margin-bottom:2rem}
+
+.btn-start{display:inline-flex;align-items:center;gap:1.2rem;padding:1rem 2.75rem;border:1px solid var(--txt);background:none;color:var(--txt);font-family:var(--fm);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;position:relative;overflow:hidden;transition:color .32s ease}
+.btn-start::before{content:'';position:absolute;inset:0;background:var(--txt);transform:translateX(-101%);transition:transform .32s cubic-bezier(.4,0,.2,1)}
+.btn-start:hover{color:var(--bg)}
+.btn-start:hover::before{transform:translateX(0)}
+.btn-start>*{position:relative}
+.btn-start svg{transition:transform .18s}
+.btn-start:hover svg{transform:translateX(5px)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.au{animation:fadeUp .7s ease both}
+.d1{animation-delay:.06s}.d2{animation-delay:.14s}.d3{animation-delay:.22s}
+.d4{animation-delay:.3s}.d5{animation-delay:.38s}.d6{animation-delay:.46s}.d7{animation-delay:.54s}
+
+/* ─── SETTINGS ─── */
+.overlay{position:fixed;inset:0;background:rgba(26,25,22,.48);backdrop-filter:blur(3px);z-index:200;display:none}
+.overlay.on{display:block}
+.panel{position:fixed;top:0;right:0;width:min(500px,100vw);height:100vh;background:var(--bg-card);border-left:1px solid var(--bdr);z-index:201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .38s cubic-bezier(.16,1,.3,1);overflow-y:auto}
+.panel.on{transform:translateX(0)}
+.pnl-head{display:flex;justify-content:space-between;align-items:center;padding:1.6rem 2rem;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--bg-card);z-index:1}
+.pnl-title{font-family:var(--fm);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--txt2)}
+.btn-x{background:none;border:none;cursor:pointer;color:var(--txt2);display:flex;align-items:center;justify-content:center;padding:3px}
+.btn-x:hover{color:var(--txt)}
+.pnl-body{padding:2rem;display:flex;flex-direction:column;gap:1.75rem;flex:1}
+.fld{display:flex;flex-direction:column;gap:.45rem}
+.fld-lbl{font-family:var(--fm);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.fld-hint{font-size:.8rem;color:var(--muted);font-style:italic;line-height:1.55}
+.fi{width:100%;background:var(--bg);border:1px solid var(--bdr);padding:.72rem 1rem;font-family:var(--fm);font-size:.78rem;color:var(--txt);outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--accent)}
+textarea.fi{resize:vertical;min-height:210px;line-height:1.6;font-size:.73rem}
+select.fi{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a09c94' stroke-width='1.2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .9rem center}
+.btn-save{margin:0 2rem 2rem;padding:.85rem;background:var(--accent);color:var(--bg-card);border:none;font-family:var(--fm);font-size:.67rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.btn-save:hover{background:var(--accent2)}
+
+/* ─── RESEARCH — immersive one-at-a-time ─── */
+#research{background:var(--bg)}
+.rnav{display:flex;justify-content:space-between;align-items:center;padding:1.4rem 3.5rem;border-bottom:1px solid var(--bdr)}
+.rnav-brand{font-family:var(--fm);font-size:.62rem;letter-spacing:.15em;color:var(--muted);text-transform:uppercase}
+.rnav-right{display:flex;align-items:center;gap:2rem}
+.q-counter{font-family:var(--fm);font-size:.62rem;color:var(--muted);letter-spacing:.05em}
+.btn-cfg-r{background:none;border:none;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;padding:4px;transition:color .2s}
+.btn-cfg-r:hover{color:var(--accent)}
+.prog-trk{height:1px;background:var(--bdr)}
+.prog-fill{height:100%;background:var(--accent);transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+#r-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:3rem 3.5rem;overflow-y:auto}
+
+.q-card{width:100%;max-width:660px;display:flex;flex-direction:column}
+@keyframes qIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.q-card{animation:qIn .36s ease both}
+
+.q-meta{display:flex;align-items:center;gap:.85rem;margin-bottom:2rem}
+.q-modname{font-family:var(--fm);font-size:.58rem;letter-spacing:.28em;color:var(--accent);text-transform:uppercase}
+.q-meta-sep{width:1px;height:11px;background:var(--bdr)}
+.q-num{font-family:var(--fm);font-size:.58rem;color:var(--muted)}
+.q-text{font-family:var(--fd);font-size:clamp(1.7rem,3.2vw,2.15rem);font-weight:400;line-height:1.5;color:var(--txt);margin-bottom:2rem}
+
+.qa{width:100%;background:transparent;border:none;border-bottom:1px solid var(--bdr);padding:.85rem .1rem;font-family:var(--fb);font-size:1.05rem;color:var(--txt);outline:none;resize:none;min-height:100px;line-height:1.8;transition:border-color .25s}
+.qa:focus{border-bottom-color:var(--accent)}
+.qa::placeholder{color:transparent}
+
+.q-hint{font-family:var(--fm);font-size:.56rem;letter-spacing:.1em;color:var(--muted);margin-top:.75rem;text-align:right}
+.q-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:2.5rem}
+
+.bn{padding:.78rem 1.6rem;background:none;border:1px solid var(--bdr);font-family:var(--fm);font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;color:var(--txt2);cursor:pointer;transition:all .2s}
+.bn:hover:not(:disabled){border-color:var(--txt2)}
+.bn:disabled{opacity:.25;cursor:not-allowed}
+.bn.pri{background:var(--txt);border-color:var(--txt);color:var(--bg)}
+.bn.pri:hover{background:var(--accent);border-color:var(--accent)}
+
+/* ─── INFO PAGE ─── */
+#info{background:var(--bg)}
+#info-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:3rem 3.5rem;overflow-y:auto}
+
+.info-card{width:100%;max-width:660px;display:flex;flex-direction:column;animation:qIn .36s ease both}
+.info-intro{font-family:var(--fd);font-size:clamp(1.5rem,2.8vw,1.9rem);font-weight:400;line-height:1.5;color:var(--txt);margin-bottom:.65rem}
+.info-sub{font-family:var(--fb);font-size:.95rem;font-style:italic;color:var(--txt2);margin-bottom:2.25rem;line-height:1.7}
+
+.info-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+.info-field{display:flex;flex-direction:column;gap:.5rem}
+.info-field.full{grid-column:1/-1}
+.info-lbl{font-family:var(--fm);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.inf{width:100%;background:transparent;border:none;border-bottom:1px solid var(--bdr);padding:.7rem .1rem;font-family:var(--fb);font-size:1rem;color:var(--txt);outline:none;transition:border-color .25s}
+.inf:focus{border-bottom-color:var(--accent)}
+select.inf{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='9' height='5' viewBox='0 0 9 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3.5 3L8 1' stroke='%23a09c94' stroke-width='1'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .1rem center}
+textarea.inf{resize:none;min-height:80px;line-height:1.75;margin-top:.25rem}
+
+/* ─── ANALYZING ─── */
+#analyzing{justify-content:center;align-items:center;gap:2.25rem;text-align:center}
+.spin{width:60px;height:60px;border:1px solid var(--bdr);border-top-color:var(--accent);border-radius:50%;animation:spin 1.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.an-lbl{font-family:var(--fm);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+.an-h{font-family:var(--fd);font-size:1.7rem;font-weight:300;color:var(--txt)}
+.dots{display:flex;gap:6px;justify-content:center}
+.dot{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:dp 1.4s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.22s}.dot:nth-child(3){animation-delay:.44s}
+@keyframes dp{0%,80%,100%{opacity:.15;transform:scale(.7)}40%{opacity:1;transform:scale(1)}}
+
+/* ─── REPORT ─── */
+.repnav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 3.5rem;background:var(--txt);border-bottom:1px solid rgba(255,255,255,.08)}
+.rep-brand{font-family:var(--fm);font-size:.62rem;letter-spacing:.15em;color:rgba(242,240,235,.4);text-transform:uppercase}
+.rep-acts{display:flex;gap:.7rem}
+.btn-act{padding:.45rem 1.1rem;background:none;border:1px solid rgba(255,255,255,.15);font-family:var(--fm);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(242,240,235,.55);cursor:pointer;transition:all .2s}
+.btn-act:hover{border-color:rgba(242,240,235,.5);color:var(--bg-card)}
+
+/* Dark hero header */
+.rep-hero{background:var(--txt);padding:3.5rem 0 3rem;text-align:center}
+.rep-hero-in{max-width:820px;width:100%;margin:0 auto;padding:0 3rem}
+.rep-stamp{font-family:var(--fm);font-size:.55rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(242,240,235,.35);margin-bottom:1.5rem}
+.rep-h1{font-family:var(--fd);font-size:clamp(2rem,5vw,3.2rem);font-weight:300;line-height:1.15;white-space:nowrap;color:var(--bg-card)}
+.rep-date{font-family:var(--fm);font-size:.6rem;color:rgba(242,240,235,.35);margin-top:.85rem}
+
+/* Section TOC strip */
+.rep-toc{display:flex;background:var(--bg-card);border-bottom:1px solid var(--bdr);overflow-x:auto;scrollbar-width:none}
+.rep-toc::-webkit-scrollbar{display:none}
+.rep-toc-btn{flex:1;min-width:0;padding:.95rem 1rem;background:none;border:none;border-right:1px solid var(--bdr);font-family:var(--fm);font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rep-toc-btn:last-child{border-right:none}
+.rep-toc-btn:hover{background:var(--bg);color:var(--accent)}
+
+/* Content body */
+.rep-body{max-width:820px;width:100%;margin:0 auto;padding:2.5rem 3rem 6rem}
+.rc{font-family:var(--fb);font-size:1.05rem;line-height:1.9;counter-reset:sec}
+
+/* Section cards */
+.rep-sec{
+  background:var(--bg-card);border:1px solid var(--bdr-lt);
+  padding:2.5rem 2.5rem 2rem;margin-bottom:1rem;
+  position:relative;overflow:hidden;counter-increment:sec
+}
+.rep-sec::before{
+  content:'SECTION ' counter(sec,decimal-leading-zero);
+  display:block;font-family:var(--fm);font-size:.52rem;
+  letter-spacing:.28em;color:var(--accent);text-transform:uppercase;margin-bottom:.85rem
+}
+.rep-sec::after{
+  content:counter(sec,decimal-leading-zero);
+  position:absolute;top:.75rem;right:1.5rem;
+  font-family:var(--fm);font-size:5rem;font-weight:300;
+  color:rgba(212,208,200,.28);line-height:1;pointer-events:none
+}
+.rep-sec h2{
+  font-family:var(--fd);font-size:1.65rem;font-weight:400;
+  color:var(--txt);margin-bottom:1.5rem;padding:0;border:none
+}
+.rep-sec h3{font-family:var(--fm);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin:1.5rem 0 .65rem}
+.rep-sec p{margin-bottom:.95rem}
+.rep-sec ul,.rep-sec ol{margin:.6rem 0 1rem 1.75rem}
+.rep-sec li{margin-bottom:.38rem}
+.rep-sec strong{font-weight:600}
+.rep-sec em{font-style:italic}
+
+.rep-err{padding:1.5rem;border:1px solid rgba(170,50,50,.25);background:rgba(170,50,50,.04);color:#8b2020;font-family:var(--fm);font-size:.78rem;line-height:1.75}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);padding:.65rem 1.5rem;font-family:var(--fm);font-size:.7rem;letter-spacing:.1em;z-index:999;animation:fadeUp .28s ease;pointer-events:none}
+.t-ok{background:var(--txt);color:var(--bg)}.t-err{background:#8b2020;color:#faf9f6}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:700px){
+  .lnav,.rnav,.repnav{padding:1.2rem 1.5rem}
+  .hero{padding:3rem 1.5rem}
+  .hero-h1{font-size:3rem}
+  #r-stage,#info-stage{padding:2rem 1.5rem}
+  .q-text{font-size:1.55rem}
+  .rep-body{padding:2rem 1.5rem 4rem}
+  .rep-h1{font-size:2rem;white-space:normal}
+  .info-row{grid-template-columns:1fr}
+  .q-nav,.info-card .q-nav{flex-wrap:wrap}
+  .bn{flex:1 1 100%}
+}
+@media print{
+  .repnav,.overlay,.panel{display:none!important}
+  #report{display:block!important;opacity:1!important}
+  .rep-body{max-width:100%;padding:2rem}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LANDING ═══ -->
+<div id="landing" class="page">
+  <nav class="lnav">
+    <span class="lnav-id">SRL — Self Research Laboratory · No.001</span>
+    <button class="btn-cfg" onclick="openCfg()" aria-label="研究配置">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.1">
+        <circle cx="7" cy="7" r="2"/><path d="M7 .5V2M7 12v1.5M.5 7H2M12 7h1.5M2.6 2.6l1.1 1.1M10.3 10.3l1.1 1.1M10.3 2.6l-1.1 1.1M3.7 10.3l-1.1 1.1"/>
+      </svg>
+    </button>
+  </nav>
+  <section class="hero">
+    <p class="hero-kicker au d1">The Self-Research Laboratory &nbsp;&mdash;&nbsp; Vol. I</p>
+    <div class="hero-bar au d2"></div>
+    <h1 class="hero-h1 au d3">自我研究实验室</h1>
+    <p class="hero-en au d4">Know Thyself &mdash; Precisely</p>
+    <div class="hero-sep au d5">
+      <div class="hero-sep-line"></div><div class="hero-sep-dot"></div><div class="hero-sep-line"></div>
+    </div>
+    <p class="hero-desc au d6">
+      你是自己最值得研究的课题。<br>
+      三十五个问题，一次真诚的自我审视，<br>
+      以及一份只属于你的深度分析报告。
+    </p>
+    <button class="btn-start au d7" onclick="startResearch()">
+      <span>开始研究</span>
+      <svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1">
+        <path d="M1 5h16M12 1l5 4-5 4"/>
+      </svg>
+    </button>
+  </section>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div class="overlay" id="overlay" onclick="closeCfg()"></div>
+<aside class="panel" id="panel">
+  <div class="pnl-head">
+    <span class="pnl-title">研究配置 / Configuration</span>
+    <button class="btn-x" onclick="closeCfg()">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.3">
+        <path d="M1 1l11 11M12 1L1 12"/>
+      </svg>
+    </button>
+  </div>
+  <div class="pnl-body">
+    <div class="fld">
+      <label class="fld-lbl" for="i-key">DeepSeek API Key</label>
+      <p class="fld-hint">在 platform.deepseek.com 申请。密钥仅存于本地浏览器，不会上传至任何服务器。</p>
+      <input type="password" class="fi" id="i-key" autocomplete="off">
+    </div>
+    <div class="fld">
+      <label class="fld-lbl" for="i-model">分析模型</label>
+      <select class="fi" id="i-model">
+        <option value="deepseek-chat">deepseek-chat（推荐，响应快）</option>
+        <option value="deepseek-reasoner">deepseek-reasoner（深度推理，较慢）</option>
+      </select>
+    </div>
+    <div class="fld">
+      <label class="fld-lbl" for="i-prompt">系统提示词</label>
+      <p class="fld-hint">可修改此提示词来调整分析的风格与侧重。</p>
+      <textarea class="fi" id="i-prompt"></textarea>
+    </div>
+  </div>
+  <button class="btn-save" onclick="saveCfg()">保存配置 / Save</button>
+</aside>
+
+<!-- ═══ RESEARCH ═══ -->
+<div id="research" class="page">
+  <nav class="rnav">
+    <span class="rnav-brand">SRL — 自我研究实验室</span>
+    <div class="rnav-right">
+      <span class="q-counter" id="q-ct">01 / 35</span>
+      <button class="btn-cfg-r" onclick="openCfg()" aria-label="配置">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.1">
+          <circle cx="7" cy="7" r="2"/><path d="M7 .5V2M7 12v1.5M.5 7H2M12 7h1.5M2.6 2.6l1.1 1.1M10.3 10.3l1.1 1.1M10.3 2.6l-1.1 1.1M3.7 10.3l-1.1 1.1"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+  <div class="prog-trk"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+  <div id="r-stage"></div>
+</div>
+
+<!-- ═══ INFO PAGE ═══ -->
+<div id="info" class="page">
+  <nav class="rnav">
+    <span class="rnav-brand">SRL — 自我研究实验室</span>
+    <span class="q-counter">补充信息 · 可选</span>
+  </nav>
+  <div class="prog-trk"><div class="prog-fill" style="width:100%"></div></div>
+  <div id="info-stage">
+    <div class="info-card">
+      <div class="q-meta">
+        <span class="q-modname">SUPPLEMENT</span>
+        <span class="q-meta-sep"></span>
+        <span class="q-num">补充信息</span>
+      </div>
+      <p class="info-intro">最后，补充一些基本信息</p>
+      <p class="info-sub">全部可选。填写后 AI 会将这些信息纳入分析，让报告更加贴近你的实际处境。</p>
+      <div class="info-row">
+        <div class="info-field">
+          <label class="info-lbl" for="inf-name">姓名或昵称</label>
+          <input type="text" class="inf" id="inf-name">
+        </div>
+        <div class="info-field">
+          <label class="info-lbl" for="inf-gender">性别</label>
+          <select class="inf" id="inf-gender">
+            <option value="">不填写</option>
+            <option value="女">女</option>
+            <option value="男">男</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="info-field">
+          <label class="info-lbl" for="inf-age">年龄</label>
+          <input type="text" class="inf" id="inf-age">
+        </div>
+      </div>
+      <div class="info-field full" style="margin-bottom:2.5rem">
+        <label class="info-lbl" for="inf-extra">其他想补充的信息</label>
+        <textarea class="inf" id="inf-extra" rows="3"></textarea>
+      </div>
+      <div class="q-nav">
+        <button class="bn" onclick="backToResearch()">← 返回修改</button>
+        <button class="bn pri" onclick="submit()">开始分析 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ANALYZING ═══ -->
+<div id="analyzing" class="page">
+  <div class="spin"></div>
+  <p class="an-lbl">正在生成分析报告</p>
+  <h2 class="an-h">研究数据分析中</h2>
+  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+</div>
+
+<!-- ═══ REPORT ═══ -->
+<div id="report" class="page">
+  <nav class="repnav">
+    <span class="rep-brand">SRL — 个人研究报告</span>
+    <div class="rep-acts">
+      <button class="btn-act" onclick="window.print()">打印报告</button>
+      <button class="btn-act" onclick="restart()">重新研究</button>
+    </div>
+  </nav>
+  <div class="rep-hero">
+    <div class="rep-hero-in">
+      <p class="rep-stamp">Self Research Laboratory — Personal Analysis Report — Confidential</p>
+      <h1 class="rep-h1">个人深度分析报告</h1>
+      <p class="rep-date" id="rep-date"></p>
+    </div>
+  </div>
+  <div class="rep-toc" id="rep-toc"></div>
+  <div class="rep-body">
+    <div class="rc" id="rc"></div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────
+// IDs: q01-q06 模块1, q07-q11 模块2, q12-q16 模块3,
+//      q17-q21 模块4, q22-q26 模块5, q27-q31 模块6, q32-q35 模块7
+const MODS = [
+  {
+    tag:'MODULE 01 / 基础画像', title:'基础画像',
+    qs:[
+      {id:'q01',t:'你喜欢吃什么？又对哪些食物完全提不起兴趣？'},
+      {id:'q02',t:'描述一下你现在的外貌状态：发色、发型，以及日常穿衣风格。'},
+      {id:'q03',t:'不假思索，用五个词描述你的性格。'},
+      {id:'q04',t:'你真正愿意持续投入时间的爱好有哪些？'},
+      {id:'q05',t:'你现在做什么工作？内心深处，你真正想做什么？'},
+      {id:'q06',t:'你的身体状况如何？有没有长期需要关注的地方？'},
+    ]
+  },
+  {
+    tag:'MODULE 02 / 价值罗盘', title:'价值罗盘',
+    qs:[
+      {id:'q07',t:'目前生活里，你最在意的三件事是什么？'},
+      {id:'q08',t:'什么样的人或行为，会让你从内心深处感到反感？'},
+      {id:'q09',t:'你最深层的恐惧是什么？'},
+      {id:'q10',t:'你最热爱的，是怎样一种生活状态？'},
+      {id:'q11',t:'你认为自己有哪些真正独特的优势？'},
+    ]
+  },
+  {
+    tag:'MODULE 03 / 情绪地图', title:'情绪地图',
+    qs:[
+      {id:'q12',t:'什么最容易打乱你的情绪状态？'},
+      {id:'q13',t:'什么情况下，你会对自己感到深深的失望？'},
+      {id:'q14',t:'情绪低落时，什么能真正让你好起来？'},
+      {id:'q15',t:'哪些具体的瞬间，让你真切感受到活着很美好？'},
+      {id:'q16',t:'对你而言，"幸福"究竟意味着什么？'},
+    ]
+  },
+  {
+    tag:'MODULE 04 / 关系图谱', title:'关系图谱',
+    qs:[
+      {id:'q17',t:'在亲密关系或深度友谊中，你最需要什么？'},
+      {id:'q18',t:'在关系里，有没有什么是你绝对无法接受的？'},
+      {id:'q19',t:'你做过的哪件事，至今仍让自己感到骄傲？'},
+      {id:'q20',t:'还有哪些强烈想实现、却始终没有落地的愿望？'},
+      {id:'q21',t:'你脑海里那个反复浮现的画面或场景是什么？'},
+    ]
+  },
+  {
+    tag:'MODULE 05 / 自我认知', title:'自我认知',
+    qs:[
+      {id:'q22',t:'你在意别人怎么看你吗？描述一下你现在的状态。'},
+      {id:'q23',t:'做重要决定时，你最依赖什么？'},
+      {id:'q24',t:'有没有过去深信不疑、如今正在悄悄推翻的认知？'},
+      {id:'q25',t:'如果完全不考虑任何后果，你现在最想做什么？'},
+      {id:'q26',t:'你害怕过一成不变的生活吗？为什么？'},
+    ]
+  },
+  {
+    tag:'MODULE 06 / 职业探索', title:'职业探索',
+    qs:[
+      {id:'q27',t:'如果可以重来，你会走一条完全不同的职业路径吗？那会是什么？'},
+      {id:'q28',t:'什么样的工作状态让你充满能量？什么样的会让你持续消耗？'},
+      {id:'q29',t:'你认为自己最适合做哪类工作——创造、影响、执行、研究，还是其他？'},
+      {id:'q30',t:'为了真正热爱的工作，你愿意牺牲什么？又有什么是绝对不愿妥协的？'},
+      {id:'q31',t:'三到五年后，你希望自己的职业状态是什么样的？'},
+    ]
+  },
+  {
+    tag:'MODULE 07 / 未来轨迹', title:'未来轨迹',
+    qs:[
+      {id:'q32',t:'你想成为什么样的人？请尽量具体地描述。'},
+      {id:'q33',t:'你绝对不愿意活成什么样子？'},
+      {id:'q34',t:'这一生，你最不愿失去什么？'},
+      {id:'q35',t:'你想要过怎样的一生？'},
+    ]
+  }
+];
+
+const DEF_PROMPT = `你是一位拥有心理学、人类学和生涯规划专业背景的深度自我研究分析师，擅长从细节中洞察深层规律。用户将提供35个关于自己的真实回答（涵盖基础画像、价值观、情绪、关系、自我认知、职业探索、未来轨迹七个维度），以及一些基本个人信息，请基于这些信息，输出一份深度、个性化的自我研究报告。
+
+报告须包含以下六个部分，每部分用 ## 标注标题：
+
+## 核心性格解析
+深入挖掘深层性格特质，包括显性与隐性特征。每个判断都要有具体的依据，避免泛泛而谈。
+
+## 价值体系分析
+梳理其真正在意的事物，以及内在可能存在的张力与矛盾点。
+
+## 情绪模式洞察
+分析情绪触发点、惯性应对模式，以及值得关注的成长盲区。
+
+## 关系动力图谱
+解析其在关系中呈现的模式、核心需求，以及可以改善的方向。
+
+## 职业路径分析
+结合其能量来源、工作偏好、底线与向往，判断其最适合的职业类型和发展方向，指出当前职业状态与内心渴望之间的距离，以及值得尝试的突破口。
+
+## 未来方向建议
+基于其优势与内心渴望，给出3-5条具体、可落地的行动建议，不要过于宏大或抽象。
+
+语气要真诚、深刻、有温度，像一位真正了解他的朋友在坦诚分析。每个观点必须有具体依据，避免套话。`;
+
+// Flatten questions
+const ALL = [];
+MODS.forEach(m => m.qs.forEach(q => ALL.push({...q, modTag:m.tag})));
+
+// ─── STATE ──────────────────────────────────────────────────
+let curQ = 0;
+let ans = {};
+let cfg = {key:'', model:'deepseek-chat', prompt:DEF_PROMPT};
+let transitioning = false;
+
+// ─── INIT ───────────────────────────────────────────────────
+function init(){
+  document.getElementById('i-prompt').value = DEF_PROMPT;
+  try{
+    const s = JSON.parse(localStorage.getItem('srl')||'{}');
+    if(s.key)    cfg.key    = s.key;
+    if(s.model)  cfg.model  = s.model;
+    if(s.prompt) cfg.prompt = s.prompt;
+    document.getElementById('i-key').value    = cfg.key;
+    document.getElementById('i-model').value  = cfg.model;
+    document.getElementById('i-prompt').value = cfg.prompt;
+  }catch(e){}
+  document.addEventListener('keydown', e => {
+    if(e.key==='Enter' && (e.ctrlKey||e.metaKey)){
+      e.preventDefault();
+      const rPage = document.getElementById('research');
+      if(rPage.classList.contains('visible')) goNext();
+    }
+  });
+  showPage('landing');
+}
+
+// ─── PAGE NAV ───────────────────────────────────────────────
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>{
+    if(p.classList.contains('visible')){
+      p.classList.remove('visible');
+      setTimeout(()=>p.classList.remove('active'), 300);
+    } else {
+      p.classList.remove('active');
+    }
+  });
+  setTimeout(()=>{
+    const t = document.getElementById(id);
+    t.classList.add('active');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('visible')));
+    window.scrollTo(0,0);
+  }, 300);
+}
+
+// ─── SETTINGS ───────────────────────────────────────────────
+function openCfg(){
+  document.getElementById('overlay').classList.add('on');
+  document.getElementById('panel').classList.add('on');
+}
+function closeCfg(){
+  document.getElementById('overlay').classList.remove('on');
+  document.getElementById('panel').classList.remove('on');
+}
+function saveCfg(){
+  cfg.key    = document.getElementById('i-key').value.trim();
+  cfg.model  = document.getElementById('i-model').value;
+  cfg.prompt = document.getElementById('i-prompt').value;
+  localStorage.setItem('srl', JSON.stringify(cfg));
+  closeCfg();
+  toast('配置已保存');
+}
+
+// ─── RESEARCH ───────────────────────────────────────────────
+function startResearch(){
+  curQ = 0; ans = {};
+  renderQ(0);
+  showPage('research');
+}
+
+function renderQ(idx){
+  const q = ALL[idx];
+  const total = ALL.length;
+  document.getElementById('prog').style.width = (idx/total*100)+'%';
+  document.getElementById('q-ct').textContent = pad2(idx+1)+' / '+total;
+
+  const isLast = idx === total - 1;
+  const card = document.createElement('div');
+  card.className = 'q-card';
+  card.innerHTML = `
+    <div class="q-meta">
+      <span class="q-modname">${q.modTag}</span>
+      <span class="q-meta-sep"></span>
+      <span class="q-num">Q.${pad2(idx+1)}</span>
+    </div>
+    <p class="q-text">${q.t}</p>
+    <textarea class="qa" id="qa-now" rows="4"></textarea>
+    <p class="q-hint">Ctrl + Enter 继续</p>
+    <div class="q-nav">
+      <button class="bn" onclick="goPrev()" ${idx===0?'disabled':''}>&larr; 上一题</button>
+      <button class="bn pri" onclick="goNext()">${isLast?'完成填写 &rarr;':'下一题 &rarr;'}</button>
+    </div>`;
+
+  const stage = document.getElementById('r-stage');
+  stage.innerHTML = '';
+  stage.appendChild(card);
+
+  // Restore saved answer AFTER DOM insertion
+  const ta = document.getElementById('qa-now');
+  if(ta){
+    ta.value = ans[q.id] || '';
+    setTimeout(()=>ta.focus(), 380);
+  }
+}
+
+function saveCurrentAns(){
+  const el = document.getElementById('qa-now');
+  if(el) ans[ALL[curQ].id] = el.value;
+}
+
+function goNext(){
+  if(transitioning) return;
+  saveCurrentAns();
+  if(curQ < ALL.length - 1){
+    animOut('next', ()=>{ curQ++; renderQ(curQ); });
+  } else {
+    showPage('info');
+  }
+}
+
+function goPrev(){
+  if(transitioning) return;
+  saveCurrentAns();
+  if(curQ > 0){
+    animOut('prev', ()=>{ curQ--; renderQ(curQ); });
+  }
+}
+
+function backToResearch(){
+  // Go back to last question
+  curQ = ALL.length - 1;
+  renderQ(curQ);
+  showPage('research');
+}
+
+function animOut(dir, cb){
+  transitioning = true;
+  const card = document.querySelector('.q-card');
+  if(!card){ cb(); transitioning=false; return; }
+  card.style.transition = 'opacity .22s ease, transform .22s ease';
+  card.style.opacity = '0';
+  card.style.transform = dir==='next' ? 'translateX(-16px)' : 'translateX(16px)';
+  setTimeout(()=>{ cb(); transitioning=false; }, 230);
+}
+
+// ─── SUBMIT ─────────────────────────────────────────────────
+async function submit(){
+  if(!cfg.key){ openCfg(); toast('请先填写 DeepSeek API Key','err'); return; }
+  showPage('analyzing');
+  try{
+    const r = await fetch('https://api.deepseek.com/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.key},
+      body:JSON.stringify({
+        model: cfg.model,
+        messages:[
+          {role:'system', content:cfg.prompt},
+          {role:'user',   content:buildPrompt()}
+        ],
+        temperature:.75, max_tokens:4096
+      })
+    });
+    if(!r.ok){
+      const e=await r.json().catch(()=>({}));
+      throw new Error(e.error?.message||'HTTP '+r.status);
+    }
+    const d=await r.json();
+    renderRep(d.choices[0].message.content);
+  }catch(e){
+    renderRep(null, e.message);
+  }
+  showPage('report');
+}
+
+function buildPrompt(){
+  // Personal info
+  const name   = document.getElementById('inf-name')?.value.trim();
+  const gender = document.getElementById('inf-gender')?.value;
+  const age    = document.getElementById('inf-age')?.value.trim();
+  const extra  = document.getElementById('inf-extra')?.value.trim();
+
+  let s = '';
+  if(name||gender||age||extra){
+    s += '【个人基本信息】\n';
+    if(name)   s += `姓名或昵称：${name}\n`;
+    if(gender) s += `性别：${gender}\n`;
+    if(age)    s += `年龄：${age}\n`;
+    if(extra)  s += `补充说明：${extra}\n`;
+    s += '\n';
+  }
+
+  s += '以下是我对35道问题的真实回答，请据此为我生成一份深度自我研究报告：\n\n';
+  let n=1;
+  MODS.forEach(m=>{
+    s+=`【${m.title}】\n`;
+    m.qs.forEach(q=>{ s+=`Q${n}. ${q.t}\n答：${ans[q.id]||'（未填写）'}\n\n`; n++; });
+  });
+  return s;
+}
+
+// ─── REPORT ─────────────────────────────────────────────────
+function renderRep(content, err){
+  const now=new Date();
+  document.getElementById('rep-date').textContent =
+    `生成于 ${now.getFullYear()}.${pad2(now.getMonth()+1)}.${pad2(now.getDate())}  ${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+  const el=document.getElementById('rc');
+  if(err){
+    el.innerHTML=`<div class="rep-err">分析请求失败：${esc(err)}<br><br>请检查 API Key 是否正确，以及网络是否可访问 api.deepseek.com。</div>`;
+    return;
+  }
+  el.innerHTML=md(content);
+  populateTOC();
+}
+
+function md(txt){
+  const lines=txt.split('\n');
+  let h='', inUL=false, inOL=false, inSec=false, secIdx=0;
+  const cl=()=>{if(inUL){h+='</ul>';inUL=false;}if(inOL){h+='</ol>';inOL=false;}};
+  const f=s=>s
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>');
+  lines.forEach(ln=>{
+    if(/^## (.+)/.test(ln)){
+      cl();
+      if(inSec) h+='</section>';
+      secIdx++;
+      h+=`<section class="rep-sec" id="sec-${secIdx}"><h2>${f(ln.replace(/^## /,''))}</h2>`;
+      inSec=true;
+    }
+    else if(/^### (.+)/.test(ln)){cl();h+=`<h3>${f(ln.replace(/^### /,''))}</h3>`;}
+    else if(/^[-•*] (.+)/.test(ln)){
+      if(inOL){h+='</ol>';inOL=false;}
+      if(!inUL){h+='<ul>';inUL=true;}
+      h+=`<li>${f(ln.replace(/^[-•*] /,''))}</li>`;
+    }
+    else if(/^\d+[.)]\s+(.+)/.test(ln)){
+      if(inUL){h+='</ul>';inUL=false;}
+      if(!inOL){h+='<ol>';inOL=true;}
+      h+=`<li>${f(ln.replace(/^\d+[.)]\s+/,''))}</li>`;
+    }
+    else if(ln.trim()===''){cl();}
+    else{cl();h+=`<p>${f(ln)}</p>`;}
+  });
+  cl();
+  if(inSec) h+='</section>';
+  return h;
+}
+
+function populateTOC(){
+  const toc = document.getElementById('rep-toc');
+  if(!toc) return;
+  const secs = document.querySelectorAll('.rep-sec');
+  if(!secs.length){ toc.style.display='none'; return; }
+  toc.innerHTML = Array.from(secs).map(s=>{
+    const title = s.querySelector('h2')?.textContent || '';
+    return `<button class="rep-toc-btn" onclick="s('${s.id}')">${title}</button>`;
+  }).join('');
+}
+// smooth scroll helper (avoid shadowing built-in 's')
+window.s = id => document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+
+function restart(){ curQ=0; ans={}; showPage('landing'); }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toast(msg, type='ok'){
+  const el=document.createElement('div');
+  el.className='toast t-'+type;
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),2800);
+}
+
+init();
+</script>
+</body>
+</html>
