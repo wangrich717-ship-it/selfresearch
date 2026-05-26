@@ -327,7 +327,10 @@ textarea.inf{resize:none;min-height:80px;line-height:1.75;margin-top:.25rem}
       </select>
     </div>
     <div class="fld">
-      <label class="fld-lbl" for="i-prompt">系统提示词</label>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <label class="fld-lbl" for="i-prompt">系统提示词</label>
+        <button onclick="resetPrompt()" style="background:none;border:none;font-family:var(--fm);font-size:.55rem;letter-spacing:.1em;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px">恢复默认</button>
+      </div>
       <p class="fld-hint">可修改此提示词来调整分析的风格与侧重。</p>
       <textarea class="fi" id="i-prompt"></textarea>
     </div>
@@ -580,6 +583,9 @@ const DEF_PROMPT = `你是一位拥有**心理学、文化人类学、生涯规�
 
 现在，用户将提供他的35题回答，请你按照以上所有要求，为他撰写专属的深度自我研究报告。`;
 
+// Prompt version — bump this whenever DEF_PROMPT changes
+const PROMPT_VER = 2;
+
 // Flatten questions
 const ALL = [];
 MODS.forEach(m => m.qs.forEach(q => ALL.push({...q, modTag:m.tag})));
@@ -595,9 +601,16 @@ function init(){
   document.getElementById('i-prompt').value = DEF_PROMPT;
   try{
     const s = JSON.parse(localStorage.getItem('srl')||'{}');
-    if(s.key)    cfg.key    = s.key;
-    if(s.model)  cfg.model  = s.model;
-    if(s.prompt) cfg.prompt = s.prompt;
+    if(s.key)   cfg.key   = s.key;
+    if(s.model) cfg.model = s.model;
+    // 只有版本匹配时才加载保存的提示词，否则用新默认值并覆盖
+    if(s.prompt && s.promptVer === PROMPT_VER){
+      cfg.prompt = s.prompt;
+    } else {
+      cfg.prompt = DEF_PROMPT;
+      // 清除旧版提示词，保留 key 和 model
+      localStorage.setItem('srl', JSON.stringify({key:cfg.key, model:cfg.model, prompt:DEF_PROMPT, promptVer:PROMPT_VER}));
+    }
     document.getElementById('i-key').value    = cfg.key;
     document.getElementById('i-model').value  = cfg.model;
     document.getElementById('i-prompt').value = cfg.prompt;
@@ -643,9 +656,15 @@ function saveCfg(){
   cfg.key    = document.getElementById('i-key').value.trim();
   cfg.model  = document.getElementById('i-model').value;
   cfg.prompt = document.getElementById('i-prompt').value;
-  localStorage.setItem('srl', JSON.stringify(cfg));
+  localStorage.setItem('srl', JSON.stringify({...cfg, promptVer:PROMPT_VER}));
   closeCfg();
   toast('配置已保存');
+}
+
+function resetPrompt(){
+  cfg.prompt = DEF_PROMPT;
+  document.getElementById('i-prompt').value = DEF_PROMPT;
+  toast('已恢复默认提示词');
 }
 
 // ─── RESEARCH ───────────────────────────────────────────────
